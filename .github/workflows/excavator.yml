@@ -1,21 +1,23 @@
-name: Auto Update Manifests
+name: Excavator
 
 on:
   schedule:
-    # 每天 UTC 0 点（北京时间早 8 点）自动检查更新一次
+    # 每天 UTC 0点（北京时间早8点）运行一次
     - cron: '0 0 * * *'
-  workflow_dispatch: # 也支持在 GitHub 网页上点击按钮手动立即触发
+  workflow_dispatch: # 支持在 GitHub 页面上随时点击“Run workflow”手动测试
 
 jobs:
-  excavator:
+  excavate:
+    name: Excavate
     runs-on: windows-latest
+    permissions:
+      contents: write # 必须赋予写入权限，机器人才能自动 commit 并 push 更新后的清单
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Scoop Excavator
-        uses: ScoopInstaller/Excavator@main
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          # 发生更新时自动提交的 Commit 格式
-          commit-message: 'chore(auto): update manifests'
+      - name: Excavate
+        uses: ScoopInstaller/GithubActions@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SKIP_UPDATED: '1'
